@@ -1,0 +1,28 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#| <Put a one-line description here>
+exec ros -Q -- $0 "$@"
+|#
+
+
+;;;; Install:
+;;;; - ros build factorial.ros
+
+
+(defpackage :ros.script.factorial.3685353024
+  (:use :cl))
+(in-package :ros.script.factorial.3685353024)
+
+(defun fact (n)
+  (if (zerop n)
+      1
+      (* n (fact (1- n)))))
+
+(defun main (n &rest argv)
+  (declare (ignore argv))
+  (when n
+    (format t "~&Factorial ~D = ~D~%" n (fact (parse-integer n))))
+  (uiop:quit 0))
+
+
+;;; vim: set ft=lisp lisp:
