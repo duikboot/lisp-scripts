@@ -1,0 +1,28 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#| <Put a one-line description here>
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  #+quicklisp (ql:quickload '(drakma) :silent t))
+
+(defpackage :ros.script.ns-travel-information.3687517974
+  (:use :cl))
+(in-package :ros.script.ns-travel-information.3687517974)
+
+
+(defparameter *api-link* "http://webservices.ns.nl/ns-api-treinplanner?fromStation~a&toStation~a")
+(defparameter *username* "dijkstra.arjen@gmail.com")
+(defparameter *password* "MzEhyReJRlM7x8_QWIQk1zyziONzrJxG7DbTFzV8aCC0r45IBQYctA")
+
+(defun call-api (from-station to-station)
+  (drakma:http-request 
+    (format nil *api-link* from-station to-station)
+                       :basic-authorization '(*username* *password*)
+                       :method :get))
+
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (call-api "Hoofddorp" "Amersfoort"))
+;;; vim: set ft=lisp lisp:
