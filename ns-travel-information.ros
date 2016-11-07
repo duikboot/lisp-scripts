@@ -4,25 +4,30 @@
 exec ros -Q -- $0 "$@"
 |#
 (progn ;;init forms
-  #+quicklisp (ql:quickload '(drakma) :silent t))
+  #+quicklisp (ql:quickload '(drakma xcml) :silent t))
 
 (defpackage :ros.script.ns-travel-information.3687517974
   (:use :cl))
 (in-package :ros.script.ns-travel-information.3687517974)
 
 
-(defparameter *api-link* "http://webservices.ns.nl/ns-api-treinplanner?fromStation~a&toStation~a")
+(defparameter *api-link* "http://webservices.ns.nl/ns-api-treinplanner?")
 (defparameter *username* "dijkstra.arjen@gmail.com")
 (defparameter *password* "MzEhyReJRlM7x8_QWIQk1zyziONzrJxG7DbTFzV8aCC0r45IBQYctA")
 
-(defun call-api (from-station to-station)
-  (drakma:http-request 
-    (format nil *api-link* from-station to-station)
-                       :basic-authorization '(*username* *password*)
-                       :method :get))
 
+(defun call-api (from-station to-station)
+  (cxml:parse
+    (drakma:http-request
+      *api-link*
+      :basic-authorization (list *username* *password*)
+      :user-agent :FIREFOX
+      :method :get
+      :parameters `(("fromStation" . ,from-station) ("toStation" . ,to-station))
+      :decode-content t)
+    (cxml-xmls:make-xmls-builder)))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (call-api "Hoofddorp" "Amersfoort"))
+  (format nil "~A " (call-api "HFD" "AMF")))
 ;;; vim: set ft=lisp lisp:
