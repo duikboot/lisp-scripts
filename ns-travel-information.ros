@@ -4,7 +4,7 @@
 exec ros -Q -- $0 "$@"
 |#
 (progn ;;init forms
-  #+quicklisp (ql:quickload '(drakma xcml) :silent t))
+  #+quicklisp (ql:quickload '(drakma cxml) :silent t))
 
 (defpackage :ros.script.ns-travel-information.3687517974
   (:use :cl))
@@ -21,13 +21,18 @@ exec ros -Q -- $0 "$@"
     (drakma:http-request
       *api-link*
       :basic-authorization (list *username* *password*)
-      :user-agent :FIREFOX
+      ; :user-agent :FIREFOX
       :method :get
-      :parameters `(("fromStation" . ,from-station) ("toStation" . ,to-station))
+      :parameters `(("fromStation" . ,from-station)
+                    ("toStation" . ,to-station))
       :decode-content t)
-    (cxml-xmls:make-xmls-builder)))
+    (cxml-dom:make-dom-builder)))
+
+(defun create-nodes (xml)
+  (dom:child-nodes (dom:document-element xml)))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (format nil "~A " (call-api "HFD" "AMF")))
+  (format nil "~A " (create-nodes (call-api "HFD" "SHL")) ))
+
 ;;; vim: set ft=lisp lisp:
