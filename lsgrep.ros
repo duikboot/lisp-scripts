@@ -13,9 +13,9 @@ exec ros -Q -- $0 "$@"
 (in-package :ros.script.ls.3685353025)
 
 (defun ls (s)
-  (inferior-shell:run/lines
-    `(inferior-shell:pipe (ls -l -h)
-                          (grep -i ,s)) :on-error nil))
+ (inferior-shell:run/lines
+  `(inferior-shell:pipe (ls -l -h)
+                        (grep -i ,s)) :on-error nil))
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))

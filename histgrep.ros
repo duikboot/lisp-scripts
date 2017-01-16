@@ -1,0 +1,37 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#| <Put a one-line description here>
+exec ros -Q -- $0 "$@"
+|#
+
+(unless (find-package :iterate)
+  (ql:quickload '(:uiop :iterate) :silent t))
+
+(defpackage :ros.script.history.3685353026
+  (:use :cl :iterate))
+
+(in-package :ros.script.history.3685353026)
+
+(defparameter *history-file* (merge-pathnames (user-homedir-pathname)
+                                       ".zsh_history"))
+
+(defun histgrep (grep)
+  (iterate:iter (for line in-file *history-file* using 'read-line)
+                (when (search grep line :test #'equalp)
+                  (collect (if (find #\; line)
+                             (subseq line (1+ (position #\; line)))
+                             line)))))
+
+
+(defun main (&optional n &rest argv)
+  (declare (ignore argv))
+  (when n
+    (let* ((result (histgrep n))
+           (res (remove-duplicates result :test #'equalp)))
+      (when res
+        (format t "~&~{~a ~&~}" res)
+        (uiop:quit 0))))
+  (uiop:quit 1))
+
+
+;;; vim: set ft=lisp lisp:
