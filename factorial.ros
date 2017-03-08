@@ -10,7 +10,7 @@ exec ros -Q -- $0 "$@"
 
 
 (defpackage :ros.script.factorial.3685353024
-  (:use :cl))
+ (:use :cl))
 (in-package :ros.script.factorial.3685353024)
 
 (defun fact (n)
