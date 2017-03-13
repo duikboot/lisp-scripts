@@ -5,23 +5,44 @@ exec ros -Q -- $0 "$@"
 |#
 
 (unless (find-package :iterate)
-  (ql:quickload '(:uiop :iterate) :silent t))
+  (ql:quickload '(:uiop :iterate :cl-ansi-text) :silent t))
 
 (defpackage :ros.script.history.3685353026
   (:use :cl :iterate))
 
 (in-package :ros.script.history.3685353026)
 
+(defparameter *histfiles* '(("zsh" . ".zsh_history") ("bash" . ".bash_history")))
+
+(defparameter shell
+  (let ((shell-path (sb-unix::posix-getenv "SHELL")))
+    (subseq shell-path (1+ (position #\/ shell-path :from-end t)))))
+
+(defun histfile (shell)
+  (rest (assoc shell *histfiles* :test #'equalp)))
+
 (defparameter *history-file* (merge-pathnames (user-homedir-pathname)
                                        ".zsh_history"))
+
+(defparameter *history-file* (merge-pathnames (user-homedir-pathname)
+                                              (histfile shell)))
+
+
+(defun format-output (grep line)
+  (let* ((start (search grep line :test #'equalp))
+         (end (+ start (length grep))))
+    (concatenate 'string
+                 (subseq line 0 start)
+                 (cl-ansi-text:yellow (subseq line start end))
+                 (subseq line end))))
 
 (defun histgrep (grep)
   (iter
     (for line in-file *history-file* using 'read-line)
     (when (search grep line :test #'equalp)
       (collect (if (find #\; line)
-                 (subseq line (1+ (position #\; line)))
-                 line)))))
+                 (format-output grep (subseq line (1+ (position #\; line))))
+                 (format-output grep line))))))
 
 
 (defun main (&optional n &rest argv)
