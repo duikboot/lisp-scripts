@@ -1,6 +1,6 @@
 #!/bin/sh
 #|-*- mode:lisp -*-|#
-#| <put a one-line description here>
+#| replacement of history |grep -i <word>
 exec ros -Q -- $0 "$@"
 |#
 
@@ -21,8 +21,8 @@ exec ros -Q -- $0 "$@"
 (defun histfile (shell)
   (rest (assoc shell *histfiles* :test #'equalp)))
 
-(defparameter *history-file* (merge-pathnames (user-homedir-pathname)
-                                       ".zsh_history"))
+; (defparameter *history-file* (merge-pathnames (user-homedir-pathname)
+;                                        ".zsh_history"))
 
 (defparameter *history-file* (merge-pathnames (user-homedir-pathname)
                                               (histfile shell)))
