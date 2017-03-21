@@ -28,13 +28,23 @@ exec ros -Q -- $0 "$@"
                                               (histfile shell)))
 
 
-(defun format-output (grep line)
-  (let* ((start (search grep line :test #'equalp))
-         (end (+ start (length grep))))
-    (concatenate 'string
-                 (subseq line 0 start)
-                 (cl-ansi-text:yellow (subseq line start end))
-                 (subseq line end))))
+(defun replace-all (string part replacement &key (test #'char=))
+  "Returns a new string in which all the occurences of the part 
+  is replaced with replacement."
+  (with-output-to-string (out)
+    (loop with part-length = (length part)
+          for old-pos = 0 then (+ pos part-length)
+          for pos = (search part string
+                            :start2 old-pos
+                            :test test)
+          do (write-string string out
+                           :start old-pos
+                           :end (or pos (length string)))
+          when pos do (write-string replacement out)
+          while pos)))
+
+(defun format-output (needle line)
+  (replace-all line needle (cl-ansi-text:yellow needle)))
 
 (defun histgrep (grep)
   (iter
@@ -50,7 +60,7 @@ exec ros -Q -- $0 "$@"
   (when n
     (let ((res (remove-duplicates (histgrep n) :test #'equalp)))
       (when res
-        (format t "~&~{ ~a ~&~}" res)
+        (format t "~&~{~a ~&~}" res)
         (uiop:quit 0))))
   (uiop:quit 1))
 
