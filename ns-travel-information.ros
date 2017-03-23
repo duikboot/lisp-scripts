@@ -3,6 +3,7 @@
 #| <Put a one-line description here>
 exec ros -Q -- $0 "$@"
 |#
+
 (progn ;;init forms
   #+quicklisp (ql:quickload '(drakma cxml) :silent t))
 
@@ -33,6 +34,6 @@ exec ros -Q -- $0 "$@"
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (format nil "~A " (create-nodes (call-api "HFD" "SHL")) ))
+  (format nil "~A " (create-nodes (call-api "HFD" "SHL"))))
 
 ;;; vim: set ft=lisp lisp:

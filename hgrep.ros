@@ -29,7 +29,7 @@ exec ros -Q -- $0 "$@"
 
 
 (defun replace-all (string part replacement &key (test #'char=))
-  "Returns a new string in which all the occurences of the part 
+  "Returns a new string in which all the occurences of the part
   is replaced with replacement."
   (with-output-to-string (out)
     (loop with part-length = (length part)
@@ -54,13 +54,12 @@ exec ros -Q -- $0 "$@"
                  (format-output grep (subseq line (1+ (position #\; line))))
                  (format-output grep line))))))
 
-
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
   (when n
     (let ((res (remove-duplicates (histgrep n) :test #'equalp)))
       (when res
-        (format t "~&~{~a ~&~}" res)
+        (format t "~&~{~A ~&~}" (butlast res))
         (uiop:quit 0))))
   (uiop:quit 1))
 
