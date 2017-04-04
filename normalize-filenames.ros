@@ -37,15 +37,18 @@ exec ros -Q -- $0 "$@"
                (list x (format nil "~A" (replace-all (file-namestring x) '(#\space) "-"))))
           (cl-fad:list-directory directory)))
 
-(defun stitch-pathname->filename (p)
-  (lambda (f) (merge-pathnames p f)))
+(defun rename-files (files)
+  (mapcar #'(lambda (fs) (rename-file (first fs)(second fs))) files))
+
+(defun join-path-files (n files)
+  (mapcar #'(lambda (f) (list (merge-pathnames n (first f)) (merge-pathnames n (second f)))) files))
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
   (when n
     (let ((res (normalize-filenames n)))
       (when res
-        (format t "~A ~A~%" n res)
+        (rename-files (join-path-files n res))
         (uiop:quit 0))))
   (uiop:quit 1))
 
