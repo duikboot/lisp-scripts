@@ -1,0 +1,54 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#| replacement of history |grep -i <word>
+exec ros -Q -- $0 "$@"
+|#
+
+(unless (find-package :iterate)
+  (ql:quickload '(:uiop :iterate :cl-fad) :silent t))
+
+(defpackage :ros.script.history.3685353027
+  (:use :cl :iterate))
+
+(in-package :ros.script.history.3685353027)
+
+
+(defun replace-all (string part replacement &key (test #'char=))
+  "Returns a new string in which all the occurences of the part
+  is replaced with replacement."
+  (with-output-to-string (out)
+    (loop with part-length = (length part)
+          for old-pos = 0 then (+ pos part-length)
+          for pos = (search part string
+                            :start2 old-pos
+                            :test test)
+          do (write-string string out
+                           :start old-pos
+                           :end (or pos (length string)))
+          when pos do (write-string replacement out)
+          while pos)))
+
+
+(defun split-path->file (f)
+  (values (directory-namestring f) (file-namestring f)))
+
+(defun normalize-filename (directory)
+    (mapc #'(lambda (x)
+              (format t "~(~A~)~%"
+                      (replace-all (file-namestring x) '(#\space) "")))
+          (cl-fad:list-directory directory)))
+
+; (defun normalize-filename (directory)
+;     (mapc #'(lambda (x) (format t "~(~A~)~%" x)) (cl-fad:list-directory directory)))
+
+(defun main (&optional n &rest argv)
+  (declare (ignore argv))
+  (when n
+    (let ((res (normalize-filename n)))
+      (when res
+        ; (format t "~&~{~A ~&~}" res)
+        (uiop:quit 0))))
+  (uiop:quit 1))
+
+
+;;; vim: set ft=lisp lisp:
