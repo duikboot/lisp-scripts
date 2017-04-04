@@ -32,21 +32,19 @@ exec ros -Q -- $0 "$@"
 (defun split-path->file (f)
   (values (directory-namestring f) (file-namestring f)))
 
-(defun normalize-filename (directory)
-    (mapc #'(lambda (x)
-              (format t "~(~A~)~%"
-                      (replace-all (file-namestring x) '(#\space) "")))
+(defun normalize-filenames (directory)
+    (mapcar #'(lambda (x) (format nil "~A" (replace-all (file-namestring x) '(#\space) "-")))
           (cl-fad:list-directory directory)))
 
-; (defun normalize-filename (directory)
-;     (mapc #'(lambda (x) (format t "~(~A~)~%" x)) (cl-fad:list-directory directory)))
+(defun stitch-pathname->filename (p)
+  (lambda (f) (merge-pathnames p f)))
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
   (when n
-    (let ((res (normalize-filename n)))
+    (let ((res (normalize-filenames n)))
       (when res
-        ; (format t "~&~{~A ~&~}" res)
+        (format t "~A ~A~%" n res)
         (uiop:quit 0))))
   (uiop:quit 1))
 
