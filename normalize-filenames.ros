@@ -33,7 +33,8 @@ exec ros -Q -- $0 "$@"
   (values (directory-namestring f) (file-namestring f)))
 
 (defun normalize-filenames (directory)
-    (mapcar #'(lambda (x) (format nil "~A" (replace-all (file-namestring x) '(#\space) "-")))
+    (mapcar #'(lambda (x)
+               (list x (format nil "~A" (replace-all (file-namestring x) '(#\space) "-"))))
           (cl-fad:list-directory directory)))
 
 (defun stitch-pathname->filename (p)
