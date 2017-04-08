@@ -34,11 +34,11 @@ exec ros -Q -- $0 "$@"
 
 (defun normalize-filenames (directory)
     (mapcar #'(lambda (x)
-               (list x (format nil "~A" (replace-all (file-namestring x) '(#\space) "-"))))
+               (list x (format nil "~A" (replace-all (file-namestring x) '(#\space) "_"))))
           (cl-fad:list-directory directory)))
 
 (defun rename-files (files)
-  (mapcar #'(lambda (fs) (rename-file (first fs)(second fs))) files))
+  (mapcar #'(lambda (fs) (apply #'rename-file fs)) files))
 
 (defun join-path-files (n files)
   (mapcar #'(lambda (f) (list (merge-pathnames n (first f)) (merge-pathnames n (second f)))) files))

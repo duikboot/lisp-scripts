@@ -14,7 +14,7 @@ exec ros -Q -- $0 "$@"
 
 (defparameter *histfiles* '(("zsh" . ".zsh_history") ("bash" . ".bash_history")))
 
-(defparameter shell
+(defun shell ()
   (let ((shell-path (sb-unix::posix-getenv "SHELL")))
     (subseq shell-path (1+ (position #\/ shell-path :from-end t)))))
 
@@ -24,8 +24,8 @@ exec ros -Q -- $0 "$@"
 ; (defparameter *history-file* (merge-pathnames (user-homedir-pathname)
 ;                                        ".zsh_history"))
 
-(defparameter *history-file* (merge-pathnames (user-homedir-pathname)
-                                              (histfile shell)))
+(defun history-file () (merge-pathnames (user-homedir-pathname)
+                                        (histfile (shell))))
 
 
 (defun replace-all (string part replacement &key (test #'char=))
@@ -48,7 +48,7 @@ exec ros -Q -- $0 "$@"
 
 (defun histgrep (grep)
  (iter
-   (for line in-file *history-file* using 'read-line)
+   (for line in-file (history-file) using 'read-line)
    (when (search grep line :test #'equalp)
      (collect (if (find #\; line)
                 (format-output grep (subseq line (1+ (position #\; line))))
