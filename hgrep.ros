@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 
 (unless (find-package :iterate)
-  (ql:quickload '(:uiop :iterate :cl-ansi-text) :silent t))
+ (ql:quickload '(:uiop :iterate :cl-ansi-text) :silent t))
 
 (defpackage :ros.script.history.3685353026
   (:use :cl :iterate))
