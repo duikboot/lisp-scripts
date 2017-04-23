@@ -1,6 +1,6 @@
 #!/bin/sh
 #|-*- mode:lisp -*-|#
-#| 
+#| Choose name
 exec ros -Q -- $0 "$@"
 |#
 
@@ -33,7 +33,7 @@ exec ros -Q -- $0 "$@"
 
 (defun one-of (set)
   "Pick one element of set, and make a list of it."
-  (list (random-elt set)))
+  (random-elt set))
 
 
 (defun get-file (filename)
@@ -42,16 +42,36 @@ exec ros -Q -- $0 "$@"
           while line
           collect line)))
 
+(defun take-n-names (n)
+  (let ((names '()))
+   (dotimes (i n)
+     (push (one-of *db*) names))
+   names))
 
 (defun print-n-names (n)
-  (print n))
+  (let ((names (take-n-names n)))
+    (dotimes (i n)
+      (format t "(~2d) ~A~%" (1+ i) (nth i names)))
+    names))
+
+(defun keep (n names)
+  (dotimes (i (length names))
+    (when (not (= i n))
+      (remove-from-db (nth i names)))))
+
+(defun choose (n)
+  (let ((names (print-n-names n)))
+   (format *query-io* "Choose a number: ")
+   (force-output *query-io*)
+   (keep (1- (read)) names)
+   (format t "~A names left" (length *db*))))
 
 
 (defun remove-from-db (item)
   (setf *db* (remove item *db* :test #'string-equal)))
 
 (defun start ()
-  (setf *db* (get-file *orig*)))
+  (setf *db* (get-file *remaining*)))
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
@@ -61,4 +81,3 @@ exec ros -Q -- $0 "$@"
         (format t "~&~{~A ~&~}" (butlast res))
         (uiop:quit 0))))
   (uiop:quit 1))
-
