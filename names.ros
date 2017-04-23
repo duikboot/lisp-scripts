@@ -13,6 +13,7 @@ exec ros -Q -- $0 "$@"
 (in-package :ros.script.names.3685353031)
 
 
+(defparameter *original* "names.db")
 (defparameter *remaining* "results.db")
 
 (defvar *db* '())
@@ -30,12 +31,6 @@ exec ros -Q -- $0 "$@"
   "Pick one element of set, and make a list of it."
   (random-elt set))
 
-
-(defun get-file (filename)
-  (with-open-file (stream filename)
-    (loop for line = (read-line stream nil)
-          while line
-          collect line)))
 
 (defun take-n-names (n)
   (let ((names '()))
@@ -56,8 +51,7 @@ exec ros -Q -- $0 "$@"
 (defun keep (n names)
   (dotimes (i (length names))
     (when (not (= i n))
-      (remove-from-db (nth i names))))
-  t)
+      (remove-from-db (nth i names)))))
 
 (defun choose (n)
  (let ((names (print-n-names n)))
@@ -66,8 +60,18 @@ exec ros -Q -- $0 "$@"
   (let ((answer (read)))
     (if (integerp answer) (keep (1- answer) names) nil))))
 
+
+(defun get-file (filename)
+  (with-open-file (stream filename)
+    (loop for line = (read-line stream nil)
+          while line
+          collect line)))
+
+
 (defun start ()
-  (setf *db* (get-file *remaining*)))
+  (if (probe-file *remaining*)
+    (setf *db* (get-file *remaining*))
+    (setf *db* (get-file *original*))))
 
 (defun save-db (filename)
   "Save current *db* to file."
@@ -87,16 +91,23 @@ exec ros -Q -- $0 "$@"
 
 (defun run (n)
   (while (choose n)
-    (format-totals))
-  (format-totals))
+    (format-totals)))
+
+; (defun print-usage ()
+;   (princ
+;    "names
+; Usage:
+;     $ names <number>"))
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
   (start)
   (when n
     (start)
+    (format-totals)
     (run (parse-integer n))
     (save-db *remaining*)
+    (format-totals)
     (uiop:quit 0))
   (uiop:quit 1))
 
