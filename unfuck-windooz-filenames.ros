@@ -5,13 +5,14 @@ exec ros -Q -- $0 "$@"
 |#
 
 (unless (find-package :iterate)
-  (ql:quickload '(:uiop :iterate :cl-fad) :silent t))
+  (ql:quickload '(:uiop :iterate :cl-fad :cl-ppcre) :silent t))
 
 (defpackage :ros.script.history.3685353027
   (:use :cl :iterate))
 
 (in-package :ros.script.history.3685353027)
 
+;(format nil "~3,'0d" (cl-ppcre:regex-replace (cl-ppcre:create-scanner "^(\\d+)") "32-asdf" "\\1"))
 
 (defun replace-all (string part replacement &key (test #'char=))
   "Returns a new string in which all the occurences of the part
@@ -35,7 +36,7 @@ exec ros -Q -- $0 "$@"
 (defun normalize-filenames (directory)
     (mapcar #'(lambda (x)
                (list x (format nil "~A" (replace-all (file-namestring x) '(#\space) "_"))))
-          (cl-fad:list-directory directory)))
+          (cl-fad:list-directory directory :follow-symlinks nil)))
 
 (defun rename-files (files)
   (mapcar #'(lambda (fs) (apply #'rename-file fs)) files))
@@ -43,12 +44,16 @@ exec ros -Q -- $0 "$@"
 (defun join-path-files (n files)
   (mapcar #'(lambda (f) (list (merge-pathnames n (first f)) (merge-pathnames n (second f)))) files))
 
+;(member "--dry-run" '("--dry-run" "test") :test #'string=)
+
+; (or (in "--dry-run" '("--dry-run")))
+
 (defun main (&optional n &rest argv)
-  (declare (ignore argv))
   (when n
     (let ((res (normalize-filenames n)))
+      (print argv)
       (when res
-        (rename-files (join-path-files n res))
+        (rename-files (join-path-files (cl-fad:pathname-as-directory n) res))
         (uiop:quit 0))))
   (uiop:quit 1))
 
