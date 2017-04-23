@@ -20,8 +20,11 @@ exec ros -Q -- $0 "$@"
 
 
 (defstruct trip
+  (warnings '() :type list)
   (hops 0 :type integer)
   (travel-time 0 :type integer)
+  (departure-delay 0 :type integer)
+  (arrival-delay 0 :type integer)
   delay
   departure
   real-departure
