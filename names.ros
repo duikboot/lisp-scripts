@@ -39,6 +39,7 @@ exec ros -Q -- $0 "$@"
    names))
 
 (defun print-n-names (n)
+  "Print n names with number"
   (let ((names (take-n-names n)))
     (terpri)
     (dotimes (i n)
@@ -46,29 +47,34 @@ exec ros -Q -- $0 "$@"
     names))
 
 (defun remove-from-db (item)
+  "Remove name from database"
   (setf *db* (remove item *db* :test #'string-equal)))
 
-(defun keep (n names)
+(defun remove-but-n (n names)
+  "Remove everything from names but the nth"
   (dotimes (i (length names))
     (when (not (= i n))
-      (remove-from-db (nth i names)))))
+      (remove-from-db (nth i names))))
+ t)
 
 (defun choose (n)
  (let ((names (print-n-names n)))
   (format *query-io* "~%Choose a number: ")
   (force-output *query-io*)
   (let ((answer (read)))
-    (if (integerp answer) (keep (1- answer) names) nil))))
+    (if (integerp answer) (remove-but-n (1- answer) names) nil))))
 
 
 (defun get-file (filename)
+  "Read whole file"
   (with-open-file (stream filename)
     (loop for line = (read-line stream nil)
           while line
           collect line)))
 
 
-(defun start ()
+(defun load-database ()
+  ""
   (if (probe-file *remaining*)
     (setf *db* (get-file *remaining*))
     (setf *db* (get-file *original*))))
@@ -101,9 +107,8 @@ exec ros -Q -- $0 "$@"
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
-  (start)
+  (load-database)
   (when n
-    (start)
     (format-totals)
     (run (parse-integer n))
     (save-db *remaining*)
