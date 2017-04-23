@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 
 (progn ;;init forms
-  #+quicklisp (ql:quickload '(drakma cxml) :silent t))
+  #+quicklisp (ql:quickload '(drakma xmls) :silent t))
 
 (defpackage :ros.script.ns-travel-information.3687517974
   (:use :cl))
@@ -16,9 +16,20 @@ exec ros -Q -- $0 "$@"
 (defparameter *username* "dijkstra.arjen@gmail.com")
 (defparameter *password* "MzEhyReJRlM7x8_QWIQk1zyziONzrJxG7DbTFzV8aCC0r45IBQYctA")
 
+(defvar *db* '())
+
+
+(defstruct trip
+  (hops 0 :type integer)
+  (travel-time 0 :type integer)
+  delay
+  departure
+  real-departure
+  arrival
+  real-arrival
+  status)
 
 (defun call-api (from-station to-station)
-  (cxml:parse
     (drakma:http-request
       *api-link*
       :basic-authorization (list *username* *password*)
@@ -26,14 +37,16 @@ exec ros -Q -- $0 "$@"
       :method :get
       :parameters `(("fromStation" . ,from-station)
                     ("toStation" . ,to-station))
-      :decode-content t)
-    (cxml-dom:make-dom-builder)))
+      :decode-content t))
 
-(defun create-nodes (xml)
-  (dom:child-nodes (dom:document-element xml)))
+(defun parse (result)
+  (xmls:parse result))
 
-(defun main (&rest argv)
+(defun test ()
+  (parse (call-api "amersfoort" "amsterdam")))
+
+(defun main (from to &rest argv)
   (declare (ignorable argv))
-  (format nil "~A " (create-nodes (call-api "HFD" "SHL"))))
+  (format t "~A " (xmls:parse (call-api from to))))
 
 ;;; vim: set ft=lisp lisp:
