@@ -59,6 +59,8 @@ exec ros -Q -- $0 "$@"
 
 (defun choose (n)
  (let ((names (print-n-names n)))
+  (format *query-io* "~%Choose a number to keep de name. <q>quit the program,")
+  (format *query-io* "~%0 the delete all names.")
   (format *query-io* "~%Choose a number: ")
   (force-output *query-io*)
   (let ((answer (read)))
@@ -74,7 +76,7 @@ exec ros -Q -- $0 "$@"
 
 
 (defun load-database ()
-  ""
+  "Load file into memory."
   (if (probe-file *remaining*)
     (setf *db* (get-file *remaining*))
     (setf *db* (get-file *original*))))
@@ -99,11 +101,11 @@ exec ros -Q -- $0 "$@"
   (while (choose n)
     (format-totals)))
 
-; (defun print-usage ()
-;   (princ
-;    "names
-; Usage:
-;     $ names <number>"))
+(defun print-usage ()
+  (princ
+   "Names
+Usage:
+    $ names <number>"))
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
@@ -114,6 +116,7 @@ exec ros -Q -- $0 "$@"
     (save-db *remaining*)
     (format-totals)
     (uiop:quit 0))
+  (print-usage)
   (uiop:quit 1))
 
 
