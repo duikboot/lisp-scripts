@@ -104,8 +104,11 @@ exec ros -Q -- $0 "$@"
 (defun print-usage ()
   (princ
    "Names
+<number> is the number of names to process at a time.
+
 Usage:
-    $ names <number>"))
+    $ names <number>
+"))
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))
