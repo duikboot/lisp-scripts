@@ -1,0 +1,33 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp (ql:quickload '(alexandria split-sequence) :silent t))
+
+
+(defpackage :ros.script.fortune.3721561154
+  (:use :cl))
+(in-package :ros.script.fortune.3721561154)
+
+(defparameter *fortune-directory* (directory "/usr/share/games/fortune/*"))
+
+
+(defun get-random-fortune-file ()
+  (alexandria:random-elt *fortune-directory*))
+
+(defun fortune (file)
+  (alexandria:random-elt
+    (split-sequence:split-sequence #\% (alexandria:read-file-into-string file :external-format :iso-8859-1))))
+
+(defun main (&optional file &rest argv)
+  (declare (ignorable argv))
+  (setf *random-state* (make-random-state t))
+  (if file
+    (princ (fortune file))
+    (princ (fortune (get-random-fortune-file)))))
+
+
+;;; vim: set ft=lisp lisp:
