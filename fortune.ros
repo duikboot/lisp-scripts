@@ -12,22 +12,27 @@ exec ros -Q -- $0 "$@"
   (:use :cl))
 (in-package :ros.script.fortune.3721561154)
 
-(defparameter *fortune-directory* (directory "/usr/share/games/fortune/*"))
+(defparameter *fortune-directory* "/usr/share/games/fortune")
 
+(defun get-random-fortune-file (file)
+  (declare (ignorable file))
+  (alexandria:random-elt (directory (format nil "~a/*" *fortune-directory*))))
 
-(defun get-random-fortune-file ()
-  (alexandria:random-elt *fortune-directory*))
+(defun get-fortune-file (file)
+  (format nil "~a/~a" *fortune-directory* file))
 
-(defun fortune (file)
+(defun fortune (f file)
   (alexandria:random-elt
-    (split-sequence:split-sequence #\% (alexandria:read-file-into-string file :external-format :iso-8859-1))))
+    (split-sequence:split-sequence #\% (alexandria:read-file-into-string (funcall f file) :external-format :iso-8859-1))))
 
 (defun main (&optional file &rest argv)
   (declare (ignorable argv))
   (setf *random-state* (make-random-state t))
   (if file
-    (princ (fortune file))
-    (princ (fortune (get-random-fortune-file)))))
+    (princ (fortune #'get-fortune-file file))
+    (princ (fortune #'get-random-fortune-file file))))
 
+
+; (get-fortune-file "drugs")
 
 ;;; vim: set ft=lisp lisp:
