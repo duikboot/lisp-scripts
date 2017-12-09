@@ -14,22 +14,34 @@ exec ros -Q -- $0 "$@"
 
 (defparameter *fortune-directory* "/usr/share/games/fortune")
 
-(defun get-random-fortune-file ()
-  (alexandria:random-elt (directory (format nil "~a/*" *fortune-directory*))))
-
-(defun get-fortune-file (file)
-  (format nil "~a/~a" *fortune-directory* file))
+(defun get-fortune-file (&optional file)
+  (if file
+   (format nil "~a/~a" *fortune-directory* file)
+   (alexandria:random-elt (directory (format nil "~a/*" *fortune-directory*)))))
 
 (defun fortune (file)
   (alexandria:random-elt
     (split-sequence:split-sequence #\% (alexandria:read-file-into-string file :external-format :iso-8859-1))))
 
+(defconstant +usage+
+  "Usage: cl-fortune [file] [-ch]
+
+Options:
+  -h       Show this help
+  -c       Show the file from which this fortune came
+")
+
 (defun main (&optional file &rest argv)
-  (declare (ignorable argv))
+  ; (declare (ignorable argv))
   (setf *random-state* (make-random-state t))
-  (if file
-    (princ (fortune (get-fortune-file file)))
-    (princ (fortune (get-random-fortune-file)))))
+
+  (if (member "-h" argv :test #'string=)
+    (princ +usage+)
+    (let ((selected-file (get-fortune-file file)))
+      (when (member "-c" argv :test #'string=)
+        (format t "(~a)" selected-file)
+        (terpri))
+      (princ (fortune selected-file)))))
 
 
 ; (get-fortune-file "drugs")
