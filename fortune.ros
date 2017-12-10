@@ -13,6 +13,8 @@ exec ros -Q -- $0 "$@"
 (in-package :ros.script.fortune.3721561154)
 
 (defparameter *fortune-directory* "/usr/share/games/fortune")
+(defvar *file* nil)
+(defvar *show-file* nil)
 
 (defun get-fortune-file (&optional file)
   (if file
@@ -31,17 +33,23 @@ Options:
   -c       Show the file from which this fortune came
 ")
 
-(defun main (&optional file &rest argv)
+(defun main (&rest argv)
   ; (declare (ignorable argv))
   (setf *random-state* (make-random-state t))
 
-  (if (member "-h" argv :test #'string=)
+  (when (member "-h" argv :test #'string=)
     (princ +usage+)
-    (let ((selected-file (get-fortune-file file)))
-      (when (member "-c" argv :test #'string=)
-        (format t "(~a)" selected-file)
-        (terpri))
-      (princ (fortune selected-file)))))
+    (uiop:quit 0))
+
+  (when (member "-c" argv :test #'string=)
+    (setf argv (remove "-c" argv :test #'string=))
+    (setf *show-file* t))
+
+  (let ((selected-file (get-fortune-file (first argv))))
+    (when *show-file*
+      (format t "(~a)" selected-file))
+    (fresh-line)
+    (princ (fortune selected-file))))
 
 
 ; (get-fortune-file "drugs")
