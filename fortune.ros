@@ -16,6 +16,14 @@ exec ros -Q -- $0 "$@"
 (defvar *file* nil)
 (defvar *show-file* nil)
 
+(defconstant +usage+
+  "Usage: cl-fortune [file] [-ch]
+
+Options:
+  -h       Show this help
+  -c       Show the file from which this fortune came
+")
+
 (defun get-fortune-file (&optional file)
   (if file
    (format nil "~a/~a" *fortune-directory* file)
@@ -25,25 +33,28 @@ exec ros -Q -- $0 "$@"
   (alexandria:random-elt
     (split-sequence:split-sequence #\% (alexandria:read-file-into-string file :external-format :iso-8859-1))))
 
-(defconstant +usage+
-  "Usage: cl-fortune [file] [-ch]
+(defun get-option (option)
+  (alexandria:switch (option :test #'string=)
+    ("-c" (setf *show-file* t))
+    ("-h" (princ +usage+) (uiop:quit 0))))
 
-Options:
-  -h       Show this help
-  -c       Show the file from which this fortune came
-")
+(defun starts-with-p (str1 str2)
+  "Determine whether `str1` starts with `str2`"
+  (let ((p (search str2 str1)))
+    (and p (= 0 p))))
+
+(defun remove-options (list)
+  (REMOVE-IF (lambda (item) (starts-with-p item "-")) list))
+
+; (remove-options '("-c" "fdas" "-d"))
 
 (defun main (&rest argv)
   ; (declare (ignorable argv))
   (setf *random-state* (make-random-state t))
 
-  (when (member "-h" argv :test #'string=)
-    (princ +usage+)
-    (uiop:quit 0))
+  (mapcar #'get-option argv)
 
-  (when (member "-c" argv :test #'string=)
-    (setf argv (remove "-c" argv :test #'string=))
-    (setf *show-file* t))
+  (setf argv (remove-options argv))
 
   (let ((selected-file (get-fortune-file (first argv))))
     (when *show-file*
@@ -51,7 +62,5 @@ Options:
     (fresh-line)
     (princ (fortune selected-file))))
 
-
-; (get-fortune-file "drugs")
 
 ;;; vim: set ft=lisp lisp:
