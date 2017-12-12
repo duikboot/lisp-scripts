@@ -38,18 +38,13 @@ Options:
     ("-c" (setf *show-file* t))
     ("-h" (princ +usage+) (uiop:quit 0))))
 
-(defun starts-with-p (str1 str2)
-  "Determine whether `str1` starts with `str2`"
-  (let ((p (search str2 str1)))
-    (and p (= 0 p))))
 
 (defun remove-options (list)
-  (REMOVE-IF (lambda (item) (starts-with-p item "-")) list))
+  (remove-if (lambda (item) (alexandria:starts-with-subseq "-" item)) list))
 
 ; (remove-options '("-c" "fdas" "-d"))
 
 (defun main (&rest argv)
-  ; (declare (ignorable argv))
   (setf *random-state* (make-random-state t))
 
   (mapcar #'get-option argv)
