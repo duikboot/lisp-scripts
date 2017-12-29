@@ -38,9 +38,11 @@ Options:
     ("-c" (setf *show-file* t))
     ("-h" (princ +usage+) (uiop:quit 0))))
 
-
 (defun remove-options (list)
-  (remove-if (lambda (item) (alexandria:starts-with-subseq "-" item)) list))
+  (remove-if
+    (lambda (item)
+      (alexandria:starts-with-subseq "-" item))
+    list))
 
 ; (remove-options '("-c" "fdas" "-d"))
 
