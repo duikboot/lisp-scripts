@@ -26,12 +26,14 @@ Options:
 
 (defun get-fortune-file (&optional file)
   (if file
-   (format nil "~a/~a" *fortune-directory* file)
-   (alexandria:random-elt (directory (format nil "~a/*" *fortune-directory*)))))
+    (format nil "~a/~a" *fortune-directory* file)
+    (alexandria:random-elt (directory (format nil "~a/*" *fortune-directory*)))))
 
 (defun fortune (file)
-  (alexandria:random-elt
-    (split-sequence:split-sequence #\% (alexandria:read-file-into-string file :external-format :iso-8859-1))))
+  (handler-case
+   (alexandria:random-elt
+     (split-sequence:split-sequence #\% (alexandria:read-file-into-string file :external-format :iso-8859-1)))
+   (SB-INT:SIMPLE-FILE-ERROR () :no-such-fortune)))
 
 (defun get-option (option)
   (alexandria:switch (option :test #'string=)
@@ -52,12 +54,17 @@ Options:
   (mapcar #'get-option argv)
 
   (setf argv (remove-options argv))
+  (setf *file* (first argv))
 
-  (let ((selected-file (get-fortune-file (first argv))))
+  (let ((selected-file (get-fortune-file *file*)))
     (when *show-file*
-      (format t "(~a)" selected-file))
-    (fresh-line)
-    (princ (fortune selected-file))))
+      (format t "(~a)~%" selected-file))
+    (let ((fortune (fortune selected-file)))
+      (case fortune
+        (:no-such-fortune
+         (format t "~%No fortune '~A' found." *file*))
+        (otherwise (princ fortune)))))
+  (fresh-line))
 
 
 ;;; vim: set ft=lisp lisp:
