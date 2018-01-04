@@ -32,7 +32,9 @@ Options:
 (defun fortune (file)
   (handler-case
    (alexandria:random-elt
-     (split-sequence:split-sequence #\% (alexandria:read-file-into-string file :external-format :iso-8859-1)))
+     (split-sequence:split-sequence
+       #\%
+       (alexandria:read-file-into-string file :external-format :iso-8859-1)))
    (SB-INT:SIMPLE-FILE-ERROR () :no-such-fortune)))
 
 (defun get-option (option)
