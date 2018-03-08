@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 
 (unless (find-package :iterate)
- (ql:quickload '(:uiop :iterate :cl-ansi-text) :silent t))
+ (ql:quickload '(:iterate :cl-ansi-text) :silent t))
 
 (defpackage :ros.script.history.3685353026
   (:use :cl :iterate))
@@ -53,6 +53,8 @@ exec ros -Q -- $0 "$@"
      (collect (if (find #\; line)
                 (format-output grep (subseq line (1+ (position #\; line))))
                 (format-output grep line))))))
+
+;; (histgrep "test")
 
 (defun main (&optional n &rest argv)
   (declare (ignore argv))

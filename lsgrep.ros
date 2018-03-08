@@ -6,7 +6,7 @@ exec ros -Q -- $0 "$@"
 
 
 (unless (find-package :inferior-shell)
-  (ql:quickload '(:uiop :inferior-shell) :silent t))
+  (ql:quickload '(:inferior-shell) :silent t))
 
 (defpackage :ros.script.ls.3685353025
   (:use :cl :inferior-shell))

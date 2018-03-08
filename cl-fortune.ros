@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 (progn ;;init forms
   (ros:ensure-asdf)
-  #+quicklisp (ql:quickload '(alexandria split-sequence) :silent t))
+  #+quicklisp (ql:quickload '(alexandria split-sequence cl-fad) :silent t))
 
 
 (defpackage :ros.script.fortune.3721561154
@@ -17,7 +17,7 @@ exec ros -Q -- $0 "$@"
 (defvar *show-file* nil)
 
 (defconstant +usage+
-  "Usage: cl-fortune [file] [-ch]
+  "Usage: cl-fortune [file|directory] [-ch]
 
 Options:
   -h       Show this help
@@ -26,7 +26,9 @@ Options:
 
 (defun get-fortune-file (&optional file)
   (if file
-    (format nil "~a/~a" *fortune-directory* file)
+    (if (cl-fad:directory-exists-p file)
+      (alexandria:random-elt (directory (format nil "~a/*" file)))
+      (format nil "~a/~a" *fortune-directory* file))
     (alexandria:random-elt (directory (format nil "~a/*" *fortune-directory*)))))
 
 (defun fortune (file)
@@ -64,7 +66,7 @@ Options:
     (let ((fortune (fortune selected-file)))
       (case fortune
         (:no-such-fortune
-         (format t "~%No fortune '~A' found." *file*))
+          (format t "~%No fortune '~A' found." *file*))
         (otherwise (princ fortune)))))
   (fresh-line))
 
